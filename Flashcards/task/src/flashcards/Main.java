@@ -1,16 +1,23 @@
 package flashcards;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        Environment env = new Environment();
         Scanner scanner = new Scanner(System.in);
-        Card card = new Card(scanner.nextLine(), scanner.nextLine());
-        String answer = scanner.nextLine();
-        if (answer.equals(card.getDefinition())) {
-            System.out.println("right");
-        } else {
-            System.out.println("wrong");
+        env.setNumberOfCards(Integer.parseInt(scanner.nextLine()));
+        for (int i = 0; i < env.getNumberOfCards(); i++) {
+            env.list.add(new Card(scanner.nextLine(), scanner.nextLine()));
+        }
+        for (Card c : env.list) {
+            System.out.println("Print the definition of \"" + c.getTerm() + "\"");
+            if (c.getDefinition().equals(scanner.nextLine())) {
+                System.out.println("Correct answer");
+            } else {
+                System.out.println("Wrong answer. The correct one is \"" + c.getDefinition() + "\".");
+            }
         }
     }
 
@@ -37,6 +44,24 @@ public class Main {
 
         public void setDefinition(String definition) {
             this.definition = definition;
+        }
+    }
+
+    private static class Environment {
+        ArrayList<Card> list;
+        private int numberOfCards;
+
+        public Environment() {
+            this.numberOfCards = 0;
+            this.list = new ArrayList<>();
+        }
+
+        public int getNumberOfCards() {
+            return numberOfCards;
+        }
+
+        public void setNumberOfCards(int numberOfCards) {
+            this.numberOfCards = numberOfCards;
         }
     }
 }
