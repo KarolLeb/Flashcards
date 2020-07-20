@@ -1,59 +1,33 @@
 package flashcards;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Environment env = new Environment();
         Scanner scanner = new Scanner(System.in);
+        Environment env = new Environment();
         env.setNumberOfCards(Integer.parseInt(scanner.nextLine()));
         for (int i = 0; i < env.getNumberOfCards(); i++) {
-            env.list.add(new Card(scanner.nextLine(), scanner.nextLine()));
+            env.cards.put(scanner.nextLine(), scanner.nextLine());
         }
-        for (Card c : env.list) {
-            System.out.println("Print the definition of \"" + c.getTerm() + "\"");
-            if (c.getDefinition().equals(scanner.nextLine())) {
+        for (HashMap.Entry<String, String> c : env.cards.entrySet()) {
+            System.out.println("Print the definition of \"" + c.getKey() + "\"");
+            if (c.getValue().equals(scanner.nextLine())) {
                 System.out.println("Correct answer");
             } else {
-                System.out.println("Wrong answer. The correct one is \"" + c.getDefinition() + "\".");
+                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\".");
             }
         }
     }
 
-    private static class Card {
-        private String term;
-        private String definition;
-
-        public Card(String term, String definition) {
-            this.term = term;
-            this.definition = definition;
-        }
-
-        public String getTerm() {
-            return term;
-        }
-
-        public void setTerm(String term) {
-            this.term = term;
-        }
-
-        public String getDefinition() {
-            return definition;
-        }
-
-        public void setDefinition(String definition) {
-            this.definition = definition;
-        }
-    }
-
     private static class Environment {
-        ArrayList<Card> list;
+        HashMap<String, String> cards;
         private int numberOfCards;
 
         public Environment() {
             this.numberOfCards = 0;
-            this.list = new ArrayList<>();
+            this.cards = new HashMap<>();
         }
 
         public int getNumberOfCards() {
