@@ -1,39 +1,65 @@
 package flashcards;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Environment env = new Environment();
-        System.out.println("Input the number of cards:");
-        env.setNumberOfCards(Integer.parseInt(scanner.nextLine()));
-        for (int i = 1; i <= env.getNumberOfCards(); i++) {
-            System.out.println("The card #" + i + ":");
-            env.addNewCard(i);
-        }
-        for (Map.Entry<String, String> c : env.cards.entrySet()) {
-            System.out.println("Print the definition of \"" + c.getKey() + "\"");
-            String answer = scanner.nextLine();
-            if (c.getValue().equals(answer)) {
-                System.out.println("Correct answer.");
-            } else if (env.cards.containsValue(answer)) {
-                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\", you've just written the definition of \"" + env.revCards.get(answer) + "\".");
-            } else {
-                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\".");
+
+        while (!env.exit) {
+            System.out.println("Input the action (add, remove, import, export, ask, exit):");
+            String str = scanner.nextLine();
+            switch (str) {
+                case "add":
+                    break;
+                case "remove":
+                    break;
+                case "import":
+                    break;
+                case "export":
+                    break;
+                case "ask":
+                    break;
+                case "exit":
+                    System.out.println("Bye bye!");
+                    break;
+                default:
+                    System.out.println("Error: wrong action!");
+                    break;
             }
+
         }
+
+//        for (int i = 1; i <= env.getNumberOfCards(); i++) {
+//            System.out.println("The card #" + i + ":");
+//            env.addNewCard(i);
+//        }
+
+//        for (Map.Entry<String, String> c : env.cards.entrySet()) {
+//            System.out.println("Print the definition of \"" + c.getKey() + "\"");
+//            String answer = scanner.nextLine();
+//            if (c.getValue().equals(answer)) {
+//                System.out.println("Correct answer.");
+//            } else if (env.cards.containsValue(answer)) {
+//                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\", you've just written the definition of \"" + env.revCards.get(answer) + "\".");
+//            } else {
+//                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\".");
+//            }
+//        }
+
     }
 
     private static class Environment {
         LinkedHashMap<String, String> cards;
         LinkedHashMap<String, String> revCards;
         private int numberOfCards;
+        private boolean exit;
 
         public Environment() {
             this.numberOfCards = 0;
+            this.exit = false;
             this.cards = new LinkedHashMap<>();
             this.revCards = new LinkedHashMap<>();
         }
@@ -68,6 +94,10 @@ public class Main {
 
         public void setNumberOfCards(int numberOfCards) {
             this.numberOfCards = numberOfCards;
+        }
+
+        public void exit() {
+            exit = true;
         }
     }
 }
