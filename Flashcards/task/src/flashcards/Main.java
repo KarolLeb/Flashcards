@@ -1,99 +1,138 @@
 package flashcards;
 
-import java.util.LinkedHashMap;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
         Environment env = new Environment();
 
         while (!env.exit) {
             System.out.println("Input the action (add, remove, import, export, ask, exit):");
-            String str = scanner.nextLine();
+            String str = env.scanner.nextLine();
             switch (str) {
                 case "add":
+                    env.addNewCard();
                     break;
                 case "remove":
+                    env.removeCard();
                     break;
                 case "import":
+                    env.importCards();
                     break;
                 case "export":
+                    env.exportCards();
                     break;
                 case "ask":
+                    env.ask();
                     break;
                 case "exit":
+                    env.exit();
                     System.out.println("Bye bye!");
                     break;
                 default:
                     System.out.println("Error: wrong action!");
                     break;
             }
-
         }
-
-//        for (int i = 1; i <= env.getNumberOfCards(); i++) {
-//            System.out.println("The card #" + i + ":");
-//            env.addNewCard(i);
-//        }
-
-//        for (Map.Entry<String, String> c : env.cards.entrySet()) {
-//            System.out.println("Print the definition of \"" + c.getKey() + "\"");
-//            String answer = scanner.nextLine();
-//            if (c.getValue().equals(answer)) {
-//                System.out.println("Correct answer.");
-//            } else if (env.cards.containsValue(answer)) {
-//                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\", you've just written the definition of \"" + env.revCards.get(answer) + "\".");
-//            } else {
-//                System.out.println("Wrong answer. The correct one is \"" + c.getValue() + "\".");
-//            }
-//        }
-
     }
 
     private static class Environment {
-        LinkedHashMap<String, String> cards;
-        LinkedHashMap<String, String> revCards;
-        private int numberOfCards;
+        Scanner scanner;
+        HashMap<String, String> cards;
         private boolean exit;
 
         public Environment() {
-            this.numberOfCards = 0;
+            scanner = new Scanner(System.in);
             this.exit = false;
-            this.cards = new LinkedHashMap<>();
-            this.revCards = new LinkedHashMap<>();
+            this.cards = new HashMap<>();
         }
 
-        public void addNewCard(int i) {
-            Scanner scanner = new Scanner(System.in);
+        public void addNewCard() {
+            System.out.println("The card:");
             String key = scanner.nextLine();
             if (cards.containsKey(key)) {
-                System.out.println("The card \"" + key + "\" already exists. Try again:");
-                addNewCard(i);
+                System.out.println("The card \"" + key + "\" already exists.");
             } else {
-                System.out.println("The definition of the card #" + i + ":");
-                addDefinition(key);
+                System.out.println("The definition of the card:");
+                String value = scanner.nextLine();
+                if (cards.containsValue(value)) {
+                    System.out.println("The definition \"" + value + "\" already exists.");
+                } else {
+                    cards.put(key, value);
+                    System.out.println("The pair (\"" + key + "\":\"" + value + "\") has been added.");
+                }
             }
         }
 
-        public void addDefinition(String key) {
-            Scanner scanner = new Scanner(System.in);
-            String value = scanner.nextLine();
-            if (cards.containsValue(value)) {
-                System.out.println("The definition \"" + value + "\" already exists. Try again:");
-                addDefinition(key);
+        public void removeCard() {
+            System.out.println("The card:");
+            String key = scanner.nextLine();
+            if (cards.containsKey(key)) {
+                if (cards.remove(key, cards.get(key))) {
+                    System.out.println("The card has been removed.");
+                } else {
+                    System.out.println("Error: cannot remove card!");
+                }
             } else {
-                cards.put(key, value);
-                revCards.put(value, key);
+                System.out.println("Can't remove \"" + key + "\": there is no such card.");
             }
         }
 
-        public int getNumberOfCards() {
-            return numberOfCards;
+        public void importCards() {
+            System.out.println("File name:");
+            String filename = scanner.nextLine();
+            File file = new File(filename);
+            try {
+                Scanner scan = new Scanner(file);
+                int n = Integer.parseInt(scan.nextLine());
+                for (int i = 0; i < n; i++) {
+                    String[] tmp = scan.nextLine().split(" ");
+                    cards.put(tmp[0], tmp[1]);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
 
-        public void setNumberOfCards(int numberOfCards) {
-            this.numberOfCards = numberOfCards;
+        public void exportCards() {
+            System.out.println("File name:");
+            String filename = scanner.nextLine();
+            try {
+                File file = new File(filename);
+                if (file.createNewFile()) {
+                    try {
+                        FileWriter writer = new FileWriter(filename);
+                        System.out.println(cards.size());
+                        for (String key : cards.keySet()) {
+                            System.out.println(key + " " + cards.get(key));
+                        }
+                        writer.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void ask() {
+            Random random = new Random();
+            System.out.println("How many times to ask?");
+            int num = Integer.parseInt(scanner.nextLine());
+            String[] keys = (String[]) cards.keySet().toArray();
+            for (int i = 0; i < num; i++) {
+                int tmp = random.nextInt(cards.size());
+                System.out.println("Print the definition of \"" + keys[tmp] + "\":");
+
+            }
         }
 
         public void exit() {
