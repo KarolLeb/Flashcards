@@ -53,6 +53,7 @@ public class Main {
         Scanner scanner;
         HashMap<String, String> cards;
         HashMap<String, String> revcards;
+        HashMap<String, Integer> mistakes;
         private boolean exit;
 
         public Environment() {
@@ -60,6 +61,7 @@ public class Main {
             this.exit = false;
             this.cards = new HashMap<>();
             this.revcards = new HashMap<>();
+            this.mistakes = new HashMap<>();
         }
 
         public void addNewCard() {
@@ -180,16 +182,16 @@ public class Main {
             exit = true;
         }
 
-        public void log(){
+        public void log() {
 
         }
 
-        public void hardestCard(){
+        public void hardestCard() {
 
         }
 
-        public void resetStats(){
-
+        public void resetStats() {
+            mistakes.replaceAll((s, v) -> 0);
         }
     }
 }
