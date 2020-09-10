@@ -33,6 +33,15 @@ public class Main {
                     env.exit();
                     System.out.println("Bye bye!");
                     break;
+                case "log":
+                    env.log();
+                    break;
+                case "hardest card":
+                    env.hardestCard();
+                    break;
+                case "reset stats":
+                    env.resetStats();
+                    break;
                 default:
                     System.out.println("Error: wrong action!");
                     break;
@@ -169,6 +178,18 @@ public class Main {
 
         public void exit() {
             exit = true;
+        }
+
+        public void log(){
+
+        }
+
+        public void hardestCard(){
+
+        }
+
+        public void resetStats(){
+
         }
     }
 }
