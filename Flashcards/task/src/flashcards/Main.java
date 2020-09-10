@@ -1,9 +1,6 @@
 package flashcards;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -93,20 +90,33 @@ public class Main {
             System.out.println("File name:");
             String filename = scanner.nextLine();
             File file = new File(filename);
-            try {
-                Scanner scan = new Scanner(file);
-                int n = Integer.parseInt(scan.nextLine());
-                for (int i = 0; i < 2 * n; i++) {
-                    String tmp0 = scan.nextLine();
-                    String tmp1 = scan.nextLine();
-                    cards.put(tmp0, tmp1);
-                    revcards.put(tmp1, tmp0);
-
+            if (file.exists()) {
+                try {
+                    Scanner scan = new Scanner(file);
+                    if (scan.hasNext()) {
+                        int n = Integer.parseInt(scan.nextLine());
+                        String tmp0;
+                        String tmp1;
+                        for (int i = 0; i < 2 * n; i++) {
+                            if (scan.hasNext()) {
+                                tmp0 = scan.nextLine();
+                                if (scan.hasNext()) {
+                                    tmp1 = scan.nextLine();
+                                    cards.put(tmp0, tmp1);
+                                    revcards.put(tmp1, tmp0);
+                                }
+                            }
+                        }
+                        System.out.println(n + " cards have been loaded.");
+                    } else {
+                        System.out.println(" cards have been loaded.");
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            } else {
+                System.out.println("File not found.");
             }
-
         }
 
         public void exportCards() {
@@ -114,18 +124,23 @@ public class Main {
             String filename = scanner.nextLine();
             try {
                 File file = new File(filename);
-                if (file.createNewFile()) {
+                if (file.exists() || file.createNewFile()) {
                     try {
-                        FileWriter writer = new FileWriter(filename);
-                        System.out.println(cards.size());
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+                        writer.write(String.valueOf(cards.size()));
                         for (String key : cards.keySet()) {
-                            System.out.println(key);
-                            System.out.println(cards.get(key));
+                            writer.newLine();
+                            writer.write(key);
+                            writer.newLine();
+                            writer.write(cards.get(key));
                         }
                         writer.close();
+                        System.out.println(cards.size() + " cards have been saved.");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    System.out.println("0 cards have been saved.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
