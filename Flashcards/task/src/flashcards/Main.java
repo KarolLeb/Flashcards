@@ -187,7 +187,7 @@ public class Main {
         }
 
         public void hardestCard() {
-
+            System.out.println("There are no cards with errors.");
         }
 
         public void resetStats() {
