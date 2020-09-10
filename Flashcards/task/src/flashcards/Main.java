@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
@@ -91,9 +92,8 @@ public class Main {
             try {
                 Scanner scan = new Scanner(file);
                 int n = Integer.parseInt(scan.nextLine());
-                for (int i = 0; i < n; i++) {
-                    String[] tmp = scan.nextLine().split(" ");
-                    cards.put(tmp[0], tmp[1]);
+                for (int i = 0; i < 2 * n; i++) {
+                    cards.put(scan.nextLine(), scan.nextLine());
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -111,7 +111,8 @@ public class Main {
                         FileWriter writer = new FileWriter(filename);
                         System.out.println(cards.size());
                         for (String key : cards.keySet()) {
-                            System.out.println(key + " " + cards.get(key));
+                            System.out.println(key);
+                            System.out.println(cards.get(key));
                         }
                         writer.close();
                     } catch (IOException e) {
@@ -127,11 +128,18 @@ public class Main {
             Random random = new Random();
             System.out.println("How many times to ask?");
             int num = Integer.parseInt(scanner.nextLine());
-            String[] keys = (String[]) cards.keySet().toArray();
+            ArrayList<String> keys = new ArrayList<>(cards.keySet());
             for (int i = 0; i < num; i++) {
-                int tmp = random.nextInt(cards.size());
-                System.out.println("Print the definition of \"" + keys[tmp] + "\":");
-
+                int tmp = random.nextInt(keys.size());
+                System.out.println("Print the definition of \"" + keys.get(tmp) + "\":");
+                String answer = scanner.nextLine();
+                if (cards.get(keys.get(tmp)).equals(answer)) {
+                    System.out.println("Correct!");
+                } else if (cards.containsValue(answer)) {
+                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
+                } else {
+                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
+                }
             }
         }
 
