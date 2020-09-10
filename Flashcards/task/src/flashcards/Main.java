@@ -46,12 +46,14 @@ public class Main {
     private static class Environment {
         Scanner scanner;
         HashMap<String, String> cards;
+        HashMap<String, String> revcards;
         private boolean exit;
 
         public Environment() {
             scanner = new Scanner(System.in);
             this.exit = false;
             this.cards = new HashMap<>();
+            this.revcards = new HashMap<>();
         }
 
         public void addNewCard() {
@@ -66,6 +68,7 @@ public class Main {
                     System.out.println("The definition \"" + value + "\" already exists.");
                 } else {
                     cards.put(key, value);
+                    revcards.put(value, key);
                     System.out.println("The pair (\"" + key + "\":\"" + value + "\") has been added.");
                 }
             }
@@ -75,7 +78,8 @@ public class Main {
             System.out.println("The card:");
             String key = scanner.nextLine();
             if (cards.containsKey(key)) {
-                if (cards.remove(key, cards.get(key))) {
+                if (revcards.remove(cards.get(key), key)) {
+                    cards.remove(key, cards.get(key));
                     System.out.println("The card has been removed.");
                 } else {
                     System.out.println("Error: cannot remove card!");
@@ -93,7 +97,11 @@ public class Main {
                 Scanner scan = new Scanner(file);
                 int n = Integer.parseInt(scan.nextLine());
                 for (int i = 0; i < 2 * n; i++) {
-                    cards.put(scan.nextLine(), scan.nextLine());
+                    String tmp0 = scan.nextLine();
+                    String tmp1 = scan.nextLine();
+                    cards.put(tmp0, tmp1);
+                    revcards.put(tmp1, tmp0);
+
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -136,7 +144,8 @@ public class Main {
                 if (cards.get(keys.get(tmp)).equals(answer)) {
                     System.out.println("Correct!");
                 } else if (cards.containsValue(answer)) {
-                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
+                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) +
+                        "\", but your definition is correct for \"" + revcards.get(answer) + "\".");
                 } else {
                     System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
                 }
