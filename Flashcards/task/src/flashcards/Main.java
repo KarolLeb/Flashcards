@@ -54,6 +54,7 @@ public class Main {
         HashMap<String, String> cards;
         HashMap<String, String> revcards;
         HashMap<String, Integer> mistakes;
+        ArrayList<String> logs;
         private boolean exit;
 
         public Environment() {
@@ -62,43 +63,54 @@ public class Main {
             this.cards = new HashMap<>();
             this.revcards = new HashMap<>();
             this.mistakes = new HashMap<>();
+            this.logs = new ArrayList<>();
         }
 
         public void addNewCard() {
             System.out.println("The card:");
+            logs.add("The card:");
             String key = scanner.nextLine();
             if (cards.containsKey(key)) {
                 System.out.println("The card \"" + key + "\" already exists.");
+                logs.add("The card \"" + key + "\" already exists.");
             } else {
                 System.out.println("The definition of the card:");
+                logs.add("The definition of the card:");
                 String value = scanner.nextLine();
                 if (cards.containsValue(value)) {
                     System.out.println("The definition \"" + value + "\" already exists.");
+                    logs.add("The definition \"" + value + "\" already exists.");
                 } else {
                     cards.put(key, value);
                     revcards.put(value, key);
                     System.out.println("The pair (\"" + key + "\":\"" + value + "\") has been added.");
+                    logs.add("The pair (\"" + key + "\":\"" + value + "\") has been added.");
                 }
             }
         }
 
         public void removeCard() {
             System.out.println("The card:");
+            logs.add("The card:");
             String key = scanner.nextLine();
             if (cards.containsKey(key)) {
                 if (revcards.remove(cards.get(key), key)) {
                     cards.remove(key, cards.get(key));
                     System.out.println("The card has been removed.");
+                    logs.add("The card has been removed.");
                 } else {
                     System.out.println("Error: cannot remove card!");
+                    logs.add("Error: cannot remove card!");
                 }
             } else {
                 System.out.println("Can't remove \"" + key + "\": there is no such card.");
+                logs.add("Can't remove \"" + key + "\": there is no such card.");
             }
         }
 
         public void importCards() {
             System.out.println("File name:");
+            logs.add("File name:");
             String filename = scanner.nextLine();
             File file = new File(filename);
             if (file.exists()) {
@@ -119,19 +131,23 @@ public class Main {
                             }
                         }
                         System.out.println(n + " cards have been loaded.");
+                        logs.add(n + " cards have been loaded.");
                     } else {
-                        System.out.println(" cards have been loaded.");
+                        System.out.println("0 cards have been loaded.");
+                        logs.add("0 cards have been loaded.");
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
             } else {
                 System.out.println("File not found.");
+                logs.add("File not found.");
             }
         }
 
         public void exportCards() {
             System.out.println("File name:");
+            logs.add("File name:");
             String filename = scanner.nextLine();
             try {
                 File file = new File(filename);
@@ -147,11 +163,13 @@ public class Main {
                         }
                         writer.close();
                         System.out.println(cards.size() + " cards have been saved.");
+                        logs.add(cards.size() + " cards have been saved.");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
                     System.out.println("0 cards have been saved.");
+                    logs.add("0 cards have been saved.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -161,19 +179,25 @@ public class Main {
         public void ask() {
             Random random = new Random();
             System.out.println("How many times to ask?");
+            logs.add("How many times to ask?");
             int num = Integer.parseInt(scanner.nextLine());
             ArrayList<String> keys = new ArrayList<>(cards.keySet());
             for (int i = 0; i < num; i++) {
                 int tmp = random.nextInt(keys.size());
                 System.out.println("Print the definition of \"" + keys.get(tmp) + "\":");
+                logs.add("Print the definition of \"" + keys.get(tmp) + "\":");
                 String answer = scanner.nextLine();
                 if (cards.get(keys.get(tmp)).equals(answer)) {
                     System.out.println("Correct!");
+                    logs.add("Correct!");
                 } else if (cards.containsValue(answer)) {
                     System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) +
                         "\", but your definition is correct for \"" + revcards.get(answer) + "\".");
+                    logs.add("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) +
+                        "\", but your definition is correct for \"" + revcards.get(answer) + "\".");
                 } else {
                     System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
+                    logs.add("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
                 }
             }
         }
@@ -183,11 +207,36 @@ public class Main {
         }
 
         public void log() {
-
+            System.out.println("File name:");
+            logs.add("File name:");
+            String filename = scanner.nextLine();
+            try {
+                File file = new File(filename);
+                if (file.exists() || file.createNewFile()) {
+                    try {
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+                        for (String log : logs) {
+                            writer.write(log);
+                            writer.newLine();
+                        }
+                        writer.close();
+                        System.out.println("The log has been saved.");
+                        logs.add("The log has been saved.");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Error");
+                    logs.add("Error");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         public void hardestCard() {
             System.out.println("There are no cards with errors.");
+            logs.add("There are no cards with errors.");
         }
 
         public void resetStats() {
