@@ -89,7 +89,7 @@ public class Main {
             logs.add("The card:");
             String key = scanner.nextLine();
             if (containsKey(key)) {
-                cards.remove(new Card(key));
+                cards.removeIf(o -> o.getKey().equals(key));
                 System.out.println("The card has been removed.");
                 logs.add("The card has been removed.");
             } else {
@@ -150,11 +150,11 @@ public class Main {
                         writer.write(String.valueOf(cards.size()));
                         for (Card c : cards) {
                             writer.newLine();
-                            writer.write(c.key);
+                            writer.write(c.getKey());
                             writer.newLine();
-                            writer.write(c.description);
+                            writer.write(c.getDescription());
                             writer.newLine();
-                            writer.write(c.mistakesCount);
+                            writer.write(Integer.toString(c.getMistakesCount()));
                         }
                         writer.close();
                         System.out.println(cards.size() + " cards have been saved.");
@@ -247,12 +247,16 @@ public class Main {
                 }
                 if (maxMistakesList.size() > 1) {
                     System.out.print("The hardest card are ");
+                    logs.add("The hardest card are ");
                     for (int i = 0; i < maxMistakesList.size() - 1; i++) {
                         System.out.print("\"" + maxMistakesList.get(0).getKey() + "\",");
+                        logs.add("\"" + maxMistakesList.get(0).getKey() + "\",");
                     }
                     System.out.println("\"" + maxMistakesList.get(maxMistakesList.size() - 1).getKey() + "\". You have " + max + " errors answering them.");
+                    logs.add("\"" + maxMistakesList.get(maxMistakesList.size() - 1).getKey() + "\". You have " + max + " errors answering them.");
                 } else {
                     System.out.println("The hardest card is \"" + maxMistakesList.get(0).getKey() + "\". You have " + max + " errors answering it.");
+                    logs.add("The hardest card is \"" + maxMistakesList.get(0).getKey() + "\". You have " + max + " errors answering it.");
                 }
             } else {
                 System.out.println("There are no cards with errors.");
@@ -265,6 +269,7 @@ public class Main {
                 c.setMistakesCount(0);
             }
             System.out.println("Card statistics has been reset.");
+            logs.add("Card statistics has been reset.");
         }
 
         public boolean containsKey(String key) {
@@ -287,17 +292,13 @@ public class Main {
 
         static class Card implements Comparable<Card> {
             private final String key;
-            private String description;
+            private final String description;
             private int mistakesCount;
 
             public Card(String key, String description) {
                 this.key = key;
                 this.description = description;
                 this.mistakesCount = 0;
-            }
-
-            public Card(String key) {
-                this.key = key;
             }
 
             public Card(String key, String description, int mistakesCount) {
