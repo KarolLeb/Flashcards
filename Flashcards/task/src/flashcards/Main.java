@@ -2,7 +2,7 @@ package flashcards;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -51,18 +51,14 @@ public class Main {
 
     private static class Environment {
         Scanner scanner;
-        HashMap<String, String> cards;
-        HashMap<String, String> revcards;
-        HashMap<String, Integer> mistakes;
+        ArrayList<Card> cards;
         ArrayList<String> logs;
         private boolean exit;
 
         public Environment() {
             scanner = new Scanner(System.in);
             this.exit = false;
-            this.cards = new HashMap<>();
-            this.revcards = new HashMap<>();
-            this.mistakes = new HashMap<>();
+            this.cards = new ArrayList<>();
             this.logs = new ArrayList<>();
         }
 
@@ -70,19 +66,18 @@ public class Main {
             System.out.println("The card:");
             logs.add("The card:");
             String key = scanner.nextLine();
-            if (cards.containsKey(key)) {
+            if (containsKey(key)) {
                 System.out.println("The card \"" + key + "\" already exists.");
                 logs.add("The card \"" + key + "\" already exists.");
             } else {
                 System.out.println("The definition of the card:");
                 logs.add("The definition of the card:");
                 String value = scanner.nextLine();
-                if (cards.containsValue(value)) {
+                if (containsValue(value)) {
                     System.out.println("The definition \"" + value + "\" already exists.");
                     logs.add("The definition \"" + value + "\" already exists.");
                 } else {
-                    cards.put(key, value);
-                    revcards.put(value, key);
+                    cards.add(new Card(key, value));
                     System.out.println("The pair (\"" + key + "\":\"" + value + "\") has been added.");
                     logs.add("The pair (\"" + key + "\":\"" + value + "\") has been added.");
                 }
@@ -93,15 +88,10 @@ public class Main {
             System.out.println("The card:");
             logs.add("The card:");
             String key = scanner.nextLine();
-            if (cards.containsKey(key)) {
-                if (revcards.remove(cards.get(key), key)) {
-                    cards.remove(key, cards.get(key));
-                    System.out.println("The card has been removed.");
-                    logs.add("The card has been removed.");
-                } else {
-                    System.out.println("Error: cannot remove card!");
-                    logs.add("Error: cannot remove card!");
-                }
+            if (containsKey(key)) {
+                cards.remove(new Card(key));
+                System.out.println("The card has been removed.");
+                logs.add("The card has been removed.");
             } else {
                 System.out.println("Can't remove \"" + key + "\": there is no such card.");
                 logs.add("Can't remove \"" + key + "\": there is no such card.");
@@ -120,13 +110,16 @@ public class Main {
                         int n = Integer.parseInt(scan.nextLine());
                         String tmp0;
                         String tmp1;
+                        String tmp2;
                         for (int i = 0; i < 2 * n; i++) {
                             if (scan.hasNext()) {
                                 tmp0 = scan.nextLine();
                                 if (scan.hasNext()) {
                                     tmp1 = scan.nextLine();
-                                    cards.put(tmp0, tmp1);
-                                    revcards.put(tmp1, tmp0);
+                                    if (scan.hasNext()) {
+                                        tmp2 = scan.nextLine();
+                                        cards.add(new Card(tmp0, tmp1, Integer.parseInt(tmp2)));
+                                    }
                                 }
                             }
                         }
@@ -155,11 +148,13 @@ public class Main {
                     try {
                         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
                         writer.write(String.valueOf(cards.size()));
-                        for (String key : cards.keySet()) {
+                        for (Card c : cards) {
                             writer.newLine();
-                            writer.write(key);
+                            writer.write(c.key);
                             writer.newLine();
-                            writer.write(cards.get(key));
+                            writer.write(c.description);
+                            writer.newLine();
+                            writer.write(c.mistakesCount);
                         }
                         writer.close();
                         System.out.println(cards.size() + " cards have been saved.");
@@ -181,23 +176,24 @@ public class Main {
             System.out.println("How many times to ask?");
             logs.add("How many times to ask?");
             int num = Integer.parseInt(scanner.nextLine());
-            ArrayList<String> keys = new ArrayList<>(cards.keySet());
             for (int i = 0; i < num; i++) {
-                int tmp = random.nextInt(keys.size());
-                System.out.println("Print the definition of \"" + keys.get(tmp) + "\":");
-                logs.add("Print the definition of \"" + keys.get(tmp) + "\":");
+                int tmp = random.nextInt(cards.size());
+                System.out.println("Print the definition of \"" + cards.get(tmp).getKey() + "\":");
+                logs.add("Print the definition of \"" + cards.get(tmp).getKey() + "\":");
                 String answer = scanner.nextLine();
-                if (cards.get(keys.get(tmp)).equals(answer)) {
+                if (cards.get(tmp).description.equals(answer)) {
                     System.out.println("Correct!");
                     logs.add("Correct!");
-                } else if (cards.containsValue(answer)) {
-                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) +
-                        "\", but your definition is correct for \"" + revcards.get(answer) + "\".");
-                    logs.add("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) +
-                        "\", but your definition is correct for \"" + revcards.get(answer) + "\".");
+                } else if (containsValue(answer)) {
+                    cards.get(tmp).setMistakesCount(cards.get(tmp).getMistakesCount() + 1);
+                    System.out.println("Wrong. The right answer is \"" + cards.get(tmp).getDescription() +
+                        "\", but your definition is correct for \"" + cards.get(cards.indexOf(new Card("", answer))) + "\".");
+                    logs.add("Wrong. The right answer is \"" + cards.get(tmp).getDescription() +
+                        "\", but your definition is correct for \"" + cards.get(cards.indexOf(new Card("", answer))) + "\".");
                 } else {
-                    System.out.println("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
-                    logs.add("Wrong. The right answer is \"" + cards.get(keys.get(tmp)) + "\".");
+                    cards.get(tmp).setMistakesCount(cards.get(tmp).getMistakesCount() + 1);
+                    System.out.println("Wrong. The right answer is \"" + cards.get(tmp).getDescription() + "\".");
+                    logs.add("Wrong. The right answer is \"" + cards.get(tmp).getDescription() + "\".");
                 }
             }
         }
@@ -235,12 +231,105 @@ public class Main {
         }
 
         public void hardestCard() {
-            System.out.println("There are no cards with errors.");
-            logs.add("There are no cards with errors.");
+            cards.sort(Collections.reverseOrder());
+            int max = 0;
+            if (cards.size() > 0) {
+                max = Collections.max(cards).getMistakesCount();
+            }
+            if (max > 0) {
+                ArrayList<Card> maxMistakesList = new ArrayList<>();
+                for (Card c : cards) {
+                    if (c.getMistakesCount() == max) {
+                        maxMistakesList.add(c);
+                    } else {
+                        break;
+                    }
+                }
+                if (maxMistakesList.size() > 1) {
+                    System.out.print("The hardest card are ");
+                    for (int i = 0; i < maxMistakesList.size() - 1; i++) {
+                        System.out.print("\"" + maxMistakesList.get(0).getKey() + "\",");
+                    }
+                    System.out.println("\"" + maxMistakesList.get(maxMistakesList.size() - 1).getKey() + "\". You have " + max + " errors answering them.");
+                } else {
+                    System.out.println("The hardest card is \"" + maxMistakesList.get(0).getKey() + "\". You have " + max + " errors answering it.");
+                }
+            } else {
+                System.out.println("There are no cards with errors.");
+                logs.add("There are no cards with errors.");
+            }
         }
 
         public void resetStats() {
-            mistakes.replaceAll((s, v) -> 0);
+            for (Card c : cards) {
+                c.setMistakesCount(0);
+            }
+            System.out.println("Card statistics has been reset.");
+        }
+
+        public boolean containsKey(String key) {
+            for (Card c : cards) {
+                if (c.key.equals(key)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean containsValue(String description) {
+            for (Card c : cards) {
+                if (c.description.equals(description)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static class Card implements Comparable<Card> {
+            private final String key;
+            private String description;
+            private int mistakesCount;
+
+            public Card(String key, String description) {
+                this.key = key;
+                this.description = description;
+                this.mistakesCount = 0;
+            }
+
+            public Card(String key) {
+                this.key = key;
+            }
+
+            public Card(String key, String description, int mistakesCount) {
+                this.key = key;
+                this.description = description;
+                this.mistakesCount = mistakesCount;
+            }
+
+            public String getKey() {
+                return key;
+            }
+
+            public String getDescription() {
+                return description;
+            }
+
+            public int getMistakesCount() {
+                return mistakesCount;
+            }
+
+            public void setMistakesCount(int mistakesCount) {
+                this.mistakesCount = mistakesCount;
+            }
+
+            @Override
+            public int compareTo(Card other) {
+                if (this.getMistakesCount() > other.getMistakesCount())
+                    return 1;
+                else if (this.getMistakesCount() == other.getMistakesCount())
+                    return 0;
+                return -1;
+            }
         }
     }
 }
