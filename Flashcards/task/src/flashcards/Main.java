@@ -1,14 +1,16 @@
 package flashcards;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
         Environment env = new Environment();
+        if (args.length > 1) {
+            if (Objects.equals(args[1], "-export")) {
+                env.export = args[2];
+            }
+        }
 
         while (!env.exit) {
             System.out.println("Input the action (add, remove, import, export, ask, exit):");
@@ -53,6 +55,7 @@ public class Main {
         Scanner scanner;
         ArrayList<Card> cards;
         ArrayList<String> logs;
+        String export;
         private boolean exit;
 
         public Environment() {
@@ -60,6 +63,7 @@ public class Main {
             this.exit = false;
             this.cards = new ArrayList<>();
             this.logs = new ArrayList<>();
+            this.export = "";
         }
 
         public void addNewCard() {
