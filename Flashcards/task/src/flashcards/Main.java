@@ -6,10 +6,19 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         Environment env = new Environment();
-        if (args.length > 1) {
+        if (args.length > 3) {
+            if (Objects.equals(args[3], "-export")) {
+                env.export = args[4];
+            } else if (Objects.equals(args[3], "-import")) {
+//...
+            }
+        } else if (args.length > 1) {
             if (Objects.equals(args[1], "-export")) {
                 env.export = args[2];
+            } else if (Objects.equals(args[1], "-import")) {
+//...
             }
+
         }
 
         while (!env.exit) {
@@ -33,7 +42,11 @@ public class Main {
                     break;
                 case "exit":
                     env.exit();
-                    System.out.println("Bye bye!");
+                    if ("".equals(env.export)) {
+                        System.out.println("Bye bye!");
+                    } else {
+                        System.out.println(env.cards.size() + "cards have been saved.");
+                    }
                     break;
                 case "log":
                     env.log();
