@@ -6,23 +6,30 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
         Environment env = new Environment();
-        if (args.length > 3) {
-            if (Objects.equals(args[3], "-export")) {
-                env.export = args[4];
-            } else if (Objects.equals(args[3], "-import")) {
-//...
+        if (args.length > 1) {
+            if (Objects.equals(args[0], "-export")) {
+                if (!"".equals(args[1])) {
+                    env.export = args[1];
+                }
+            } else if (Objects.equals(args[0], "-import")) {
+                env.importCards(args[1]);
             }
-        } else if (args.length > 1) {
-            if (Objects.equals(args[1], "-export")) {
-                env.export = args[2];
-            } else if (Objects.equals(args[1], "-import")) {
-//...
+            if (args.length > 3) {
+                if (!args[0].equals(args[2])) {
+                    if (Objects.equals(args[2], "-export")) {
+                        if (!"".equals(args[3])) {
+                            env.export = args[3];
+                        }
+                    } else if (Objects.equals(args[2], "-import")) {
+                        env.importCards(args[3]);
+                    }
+                }
             }
-
         }
 
         while (!env.exit) {
             System.out.println("Input the action (add, remove, import, export, ask, exit):");
+            env.logs.add("Input the action (add, remove, import, export, ask, exit):");
             String str = env.scanner.nextLine();
             switch (str) {
                 case "add":
@@ -32,20 +39,22 @@ public class Main {
                     env.removeCard();
                     break;
                 case "import":
-                    env.importCards();
+                    env.userImport();
                     break;
                 case "export":
-                    env.exportCards();
+                    env.userSave();
                     break;
                 case "ask":
                     env.ask();
                     break;
                 case "exit":
                     env.exit();
-                    if ("".equals(env.export)) {
-                        System.out.println("Bye bye!");
-                    } else {
-                        System.out.println(env.cards.size() + "cards have been saved.");
+                    System.out.println("Bye bye!");
+                    env.logs.add("Bye bye!");
+                    if (!"".equals(env.export)) {
+                        env.exitExport();
+                        System.out.println(env.cards.size() + " cards have been saved.");
+                        env.logs.add(env.cards.size() + " cards have been saved.");
                     }
                     break;
                 case "log":
@@ -59,6 +68,7 @@ public class Main {
                     break;
                 default:
                     System.out.println("Error: wrong action!");
+                    env.logs.add("Error: wrong action!");
                     break;
             }
         }
@@ -115,10 +125,14 @@ public class Main {
             }
         }
 
-        public void importCards() {
+        public void userImport() {
             System.out.println("File name:");
             logs.add("File name:");
             String filename = scanner.nextLine();
+            importCards(filename);
+        }
+
+        public void importCards(String filename) {
             File file = new File(filename);
             if (file.exists()) {
                 try {
@@ -155,10 +169,20 @@ public class Main {
             }
         }
 
-        public void exportCards() {
+        public void exitExport() {
+            exportCards(export);
+        }
+
+        public void userSave() {
             System.out.println("File name:");
             logs.add("File name:");
             String filename = scanner.nextLine();
+            exportCards(filename);
+            System.out.println(cards.size() + " cards have been saved.");
+            logs.add(cards.size() + " cards have been saved.");
+        }
+
+        public void exportCards(String filename) {
             try {
                 File file = new File(filename);
                 if (file.exists() || file.createNewFile()) {
@@ -174,14 +198,9 @@ public class Main {
                             writer.write(Integer.toString(c.getMistakesCount()));
                         }
                         writer.close();
-                        System.out.println(cards.size() + " cards have been saved.");
-                        logs.add(cards.size() + " cards have been saved.");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else {
-                    System.out.println("0 cards have been saved.");
-                    logs.add("0 cards have been saved.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -204,9 +223,9 @@ public class Main {
                 } else if (containsValue(answer)) {
                     cards.get(tmp).setMistakesCount(cards.get(tmp).getMistakesCount() + 1);
                     System.out.println("Wrong. The right answer is \"" + cards.get(tmp).getDescription() +
-                        "\", but your definition is correct for \"" + cards.get(cards.indexOf(new Card("", answer))) + "\".");
+                        "\", but your definition is correct for \"" + cards.stream().filter(c -> c.getDescription().equals(answer)).findFirst().get().getKey() + "\".");
                     logs.add("Wrong. The right answer is \"" + cards.get(tmp).getDescription() +
-                        "\", but your definition is correct for \"" + cards.get(cards.indexOf(new Card("", answer))) + "\".");
+                        "\", but your definition is correct for \"" + cards.stream().filter(c -> c.getDescription().equals(answer)).findFirst().get().getKey() + "\".");
                 } else {
                     cards.get(tmp).setMistakesCount(cards.get(tmp).getMistakesCount() + 1);
                     System.out.println("Wrong. The right answer is \"" + cards.get(tmp).getDescription() + "\".");
